@@ -53,9 +53,9 @@ class WeatherHandler(xml.sax.ContentHandler):
             if name == "day_of_week":
                 self.day = attrs.getValue("data")
             if name == "low":
-                self.low = attrs.getValue("data")
+                self.low = self.__convert_to_celsius__(attrs.getValue("data"))
             if name == "high":
-                self.high = attrs.getValue("data")
+                self.high =  self.__convert_to_celsius__(attrs.getValue("data"))
             if name == "condition":
                 self.condition = attrs.getValue("data")
 
@@ -68,6 +68,11 @@ class WeatherHandler(xml.sax.ContentHandler):
         if name == "forecast_conditions":
             self.forecast_condition = False
             self.i += 1
+
+    def __convert_to_celsius__(self, temp):
+        "Convert fahrenheit to celcius"
+
+        return (int(temp) - 32) / (9.0 / 5.0) 
 
     def printWeather(self):
         "Print condition"
@@ -82,7 +87,7 @@ class WeatherHandler(xml.sax.ContentHandler):
             if self.forecast == True:
                 print "\nForecast condition:"
                 for day in self.forecast_data.keys():
-                    print "%s [Low: %s High: %s Condition: %s]" % (day, self.forecast_data[day]['low'], self.forecast_data[day]['high'], self.forecast_data[day]['condition'])
+                    print "%s [Low: %d High: %d Condition: %s]" % (day, self.forecast_data[day]['low'], self.forecast_data[day]['high'], self.forecast_data[day]['condition'])
         else:
             print "No data"
             sys.exit(1)
