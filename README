@@ -6,4 +6,4 @@ python
 Description
 -----------
 
-Little tool to extract weather from google weather api 
+Little tool to extract weather from google weather API, and optionnaly IP from hostip.info API 
