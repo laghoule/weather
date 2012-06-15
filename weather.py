@@ -1,6 +1,6 @@
 #!/usr/bin/python
 
-# Written by Pascal Gauthier <pgauthier@onebigplanet.com>
+# Written by Pascal Gauthier <pgauthier@nihilisme.ca>
 # 06.15.2012 
 
 import sys
