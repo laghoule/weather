@@ -34,7 +34,7 @@ class IP2locHandler(xml.sax.ContentHandler):
         if self.hostip and name == "gml:name":
             self.city_name = True
 
-        if name == "countryAbbrev":
+        if name == "countryName":
             self.country_name = True
 
     def endElement(self, name):
@@ -44,7 +44,7 @@ class IP2locHandler(xml.sax.ContentHandler):
             self.hostip = False
             self.city_name = False 
 
-        if name == "countryAbbrev":
+        if name == "countryName":
             self.country_name = False 
 
     def characters(self, string):
@@ -74,62 +74,59 @@ class WeatherHandler(xml.sax.ContentHandler):
     def __init__(self, forecast):
         "Initialize vars"
         
-        self.i = 0
-        self.city = ""
-        self.temp = ""
-        self.humi = ""
-        self.wind = ""
+        self.city = [] 
+        self.temp = [] 
+        self.feel = []
+        self.humi = [] 
+        self.wind = [] 
+        self.cond = []
         self.forecast = forecast
         self.forecast_condition = False
 
-        self.day = None
-        self.low = None
-        self.high = None
-        self.condition = None
+        self.i = 0
         self.forecast_data = {} 
 
     def startElement(self, name, attrs):
         "Extract only what we want from the XML"
 
-        if name == "city":
-            self.city = attrs.getValue("data")
-        if name == "temp_c":
-            self.temp = attrs.getValue("data")
-        if name == "humidity":
-            self.humi = attrs.getValue("data")
-        if name == "condition":
-            self.cond = attrs.getValue("data")
-        if name == "wind_condition":
-            self.wind = attrs.getValue("data")
-
-        if name == "forecast_conditions":
-            self.forecast_condition = True
-
-        if self.forecast_condition and self.forecast == True:
-            if name == "day_of_week":
-                self.day = attrs.getValue("data")
-            if name == "low":
-                self.low = self.__convert_to_celsius__(attrs.getValue("data"))
-            if name == "high":
-                self.high =  self.__convert_to_celsius__(attrs.getValue("data"))
-            if name == "condition":
-                self.condition = attrs.getValue("data")
-
-            if self.day and self.low and self.high and self.cond:
-                self.forecast_data[self.day] = {'low': self.low , 
-                            'high': self.high, 'condition': self.condition}
+        self.element = name
+        if name == "forecastday":
+            self.forecast_condition = True 
 
     def endElement(self, name):
         "End of the element"
 
-        if name == "forecast_conditions":
-            self.forecast_condition = False
-            self.i += 1
+        if name == "forecastday":
+            self.forecast_condition = False 
 
-    def __convert_to_celsius__(self, temp):
-        "Convert fahrenheit to celcius"
+    def characters(self, chrs):
+        "Extract data from <> elements"
 
-        return (int(temp) - 32) / (9.0 / 5.0) 
+        # Current condition
+        if self.element == "city" and not len(self.city):
+            self.city = chrs
+        if self.element == "temp_c" and not len(self.temp):
+            self.temp = chrs
+        if self.element == "feelslike_c" and not len(self.feel):
+            self.feel = chrs
+        if self.element == "relative_humidity" and not len(self.humi):
+            self.humi = chrs
+        if self.element == "weather" and not len(self.cond):
+            self.cond = chrs
+        if self.element == "wind_string" and not len(self.wind):
+            self.wind = chrs
+
+        # Forecast condition
+        if self.forecast_condition and self.forecast == True:
+            if self.element == "title" and \
+                    not self.forecast_data.has_key(chrs) \
+                    and len(chrs.strip()):
+                self.day = chrs.strip()
+            if self.element == "fcttext_metric" and len(chrs.strip()) > 1:
+                # I use a compter for getting array order
+                self.forecast_data[self.i] = {'day': self.day, 
+                    'forecast': chrs.strip()} 
+                self.i += 1
 
     def printWeather(self):
         "Print condition"
@@ -137,19 +134,18 @@ class WeatherHandler(xml.sax.ContentHandler):
         if self.city:
             print "\nCurrent condition:"
             print "------------------\n"
-            print "%s: %sc" % (self.city, self.temp)
+            print "%s: %sc, (feel's like %sc)" % (self.city, self.temp,
+                self.feel)
             print "Condition: %s" % (self.cond)
-            print self.humi 
-            print self.wind
+            print "Wind: %s" % (self.wind)
+            print "Relative humidity: %s" % (self.humi) 
 
             if self.forecast == True:
                 print "\nForecast condition:"
                 print "-------------------\n"
-                for day in self.forecast_data.keys():
-                    print "%s [Low: %dc High: %dc Condition: %s]" % (day, 
-                        self.forecast_data[day]['low'],
-                        self.forecast_data[day]['high'],
-                        self.forecast_data[day]['condition'])
+                for i in range(self.i):
+                    print "%s:\n%s\n" % (self.forecast_data[i]['day'], 
+                        self.forecast_data[i]['forecast']) 
         else:
             print "No data"
             sys.exit(1)
@@ -180,17 +176,19 @@ def main():
         ip_parser.parse(fetch_apidata("http://api.hostip.info/?ip="))
         city, state = ip_handler.locate_city()
 
-        google_api = "http://www.google.ca/ig/api?weather=" + city + "," + state 
-
-        # Parse info from Google weather API
-        weather_parser.setContentHandler(wt_handler)
-        weather_parser.parse(fetch_apidata(google_api))
+        if not args.forecast:
+            wunderground_api = "http://api.wunderground.com/api/6325d73d2d8816df/conditions/q/" + state + "/" + city + ".xml"
+        else:
+            wunderground_api = "http://api.wunderground.com/api/6325d73d2d8816df/conditions/forecast/q/" + state + "/" + city + ".xml"
     else:
-        google_api = "http://www.google.ca/ig/api?weather=" + args.city + "," + args.state
+        if not args.forecast:
+            wunderground_api = "http://api.wunderground.com/api/6325d73d2d8816df/conditions/q/" + args.state + "/" + args.city + ".xml"
+        else:
+            wunderground_api = "http://api.wunderground.com/api/6325d73d2d8816df/conditions/forecast/q/" + args.state + "/" + args.city + ".xml"
 
-        # Parse info from Google weather API
-        weather_parser.setContentHandler(wt_handler)
-        weather_parser.parse(fetch_apidata(google_api))
+    # Parse info from Google weather API
+    weather_parser.setContentHandler(wt_handler)
+    weather_parser.parse(fetch_apidata(wunderground_api))
 
     # Print result
     wt_handler.printWeather()
