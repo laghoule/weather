@@ -134,7 +134,7 @@ class WeatherHandler(xml.sax.ContentHandler):
         if self.city:
             print "\nCurrent condition:"
             print "------------------\n"
-            print "%s: %sc, (feel's like %sc)" % (self.city, self.temp,
+            print "%s: %sc (humidex %sc)" % (self.city, self.temp,
                 self.feel)
             print "Condition: %s" % (self.cond)
             print "Wind: %s" % (self.wind)
