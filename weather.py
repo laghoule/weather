@@ -118,24 +118,20 @@ class WeatherHandler(xml.sax.ContentHandler):
 
         # Forecast condition
         if self.forecast_condition and self.forecast == True:
-            if self.element == "title" and \
-                    not self.forecast_data.has_key(chrs) \
-                    and len(chrs.strip()):
+            if self.element == "title" and not self.forecast_data.has_key(chrs) and len(chrs.strip()):
                 self.day = chrs.strip()
             if self.element == "fcttext_metric" and len(chrs.strip()) > 1:
                 # I use a compter for getting array order
-                self.forecast_data[self.i] = {'day': self.day, 
-                    'forecast': chrs.strip()} 
+                self.forecast_data[self.i] = {'day': self.day, 'forecast': chrs.strip()}
                 self.i += 1
 
-    def printWeather(self):
+    def print_weather(self):
         """Print condition"""
 
         if self.city:
             print "\nCurrent condition:"
             print "------------------\n"
-            print "%s: %sc (humidex %sc)" % (self.city, self.temp,
-                self.feel)
+            print "%s: %sc (humidex %sc)" % (self.city, self.temp, self.feel)
             print "Condition: %s" % (self.cond)
             print "Wind: %s" % (self.wind)
             print "Relative humidity: %s" % (self.humi) 
@@ -144,8 +140,7 @@ class WeatherHandler(xml.sax.ContentHandler):
                 print "\nForecast condition:"
                 print "-------------------\n"
                 for i in range(self.i):
-                    print "%s:\n%s\n" % (self.forecast_data[i]['day'], 
-                        self.forecast_data[i]['forecast']) 
+                    print "%s:\n%s\n" % (self.forecast_data[i]['day'], self.forecast_data[i]['forecast'])
         else:
             print "No data"
             sys.exit(1)
@@ -155,8 +150,7 @@ def main():
     """Main function"""
 
     argparser = argparse.ArgumentParser() 
-    argparser.add_argument("--forecast", action="store_true", 
-                help="print current and forcast weather")
+    argparser.add_argument("--forecast", action="store_true", help="print current and forcast weather")
     argparser.add_argument("--city", help="name of the city")
     argparser.add_argument("--state", help="name of the state/country")
 
@@ -191,7 +185,7 @@ def main():
     weather_parser.parse(fetch_apidata(wunderground_api))
 
     # Print result
-    wt_handler.printWeather()
+    wt_handler.print_weather()
 
 
 if __name__ == "__main__":
