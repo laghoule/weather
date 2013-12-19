@@ -10,16 +10,16 @@ import argparse
 
 
 def fetch_apidata(url):
-    "Get data from API"
+    """Get data from API"""
 
     return urllib2.urlopen(url)
 
 
 class IP2locHandler(xml.sax.ContentHandler):
-    "IP to city location"
+    """IP to city location"""
 
     def __init__(self):
-        "Initialize vars"
+        """Initialize vars"""
 
         self.data = []
         self.city_name = False 
@@ -27,7 +27,7 @@ class IP2locHandler(xml.sax.ContentHandler):
         self.hostip = False
 
     def startElement(self, name, attrs):
-        "Extract city name and state/province"
+        """Extract city name and state/province"""
 
         if name == "Hostip":
             self.hostip = True 
@@ -38,7 +38,7 @@ class IP2locHandler(xml.sax.ContentHandler):
             self.country_name = True
 
     def endElement(self, name):
-        "End of element"
+        """End of element"""
 
         if name == "Hostip":
             self.hostip = False
@@ -48,7 +48,7 @@ class IP2locHandler(xml.sax.ContentHandler):
             self.country_name = False 
 
     def characters(self, string):
-        "Read element data"
+        """Read element data"""
 
         if self.hostip and self.city_name:
             self.city = string
@@ -59,20 +59,20 @@ class IP2locHandler(xml.sax.ContentHandler):
             self.country_name = False
 
     def locate_city(self):
-        "Return the name of the city"
+        """Return the name of the city"""
 
-        if self.city.find("Unknown") != -1 : 
+        if self.city.find("Unknown") != -1:
             print "Unknown city"
             sys.exit(1)
 
-        return (self.city, self.country)
+        return self.city, self.country
 
 
 class WeatherHandler(xml.sax.ContentHandler): 
-    "Superclass of ContentHandler"
+    """Superclass of ContentHandler"""
 
     def __init__(self, forecast):
-        "Initialize vars"
+        """Initialize vars"""
         
         self.city = [] 
         self.temp = [] 
@@ -87,20 +87,20 @@ class WeatherHandler(xml.sax.ContentHandler):
         self.forecast_data = {} 
 
     def startElement(self, name, attrs):
-        "Extract only what we want from the XML"
+        """Extract only what we want from the XML"""
 
         self.element = name
         if name == "forecastday":
             self.forecast_condition = True 
 
     def endElement(self, name):
-        "End of the element"
+        """End of the element"""
 
         if name == "forecastday":
             self.forecast_condition = False 
 
     def characters(self, chrs):
-        "Extract data from <> elements"
+        """Extract data from <> elements"""
 
         # Current condition
         if self.element == "city" and not len(self.city):
@@ -129,7 +129,7 @@ class WeatherHandler(xml.sax.ContentHandler):
                 self.i += 1
 
     def printWeather(self):
-        "Print condition"
+        """Print condition"""
 
         if self.city:
             print "\nCurrent condition:"
@@ -152,7 +152,7 @@ class WeatherHandler(xml.sax.ContentHandler):
 
 
 def main():
-    "Main function"
+    """Main function"""
 
     argparser = argparse.ArgumentParser() 
     argparser.add_argument("--forecast", action="store_true", 
