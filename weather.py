@@ -117,8 +117,8 @@ class WeatherHandler(xml.sax.ContentHandler):
             self.wind = chrs
 
         # Forecast condition
-        if self.forecast_condition and self.forecast == True:
-            if self.element == "title" and not self.forecast_data.has_key(chrs) and len(chrs.strip()):
+        if self.forecast_condition and self.forecast is True:
+            if self.element == "title" and not self.forecast_data in chrs and len(chrs.strip()):
                 self.day = chrs.strip()
             if self.element == "fcttext_metric" and len(chrs.strip()) > 1:
                 # I use a compter for getting array order
@@ -132,11 +132,11 @@ class WeatherHandler(xml.sax.ContentHandler):
             print "\nCurrent condition:"
             print "------------------\n"
             print "%s: %sc (humidex %sc)" % (self.city, self.temp, self.feel)
-            print "Condition: %s" % (self.cond)
-            print "Wind: %s" % (self.wind)
-            print "Relative humidity: %s" % (self.humi) 
+            print "Condition: %s" % self.cond
+            print "Wind: %s" % self.wind
+            print "Relative humidity: %s" % self.humi
 
-            if self.forecast == True:
+            if self.forecast is True:
                 print "\nForecast condition:"
                 print "-------------------\n"
                 for i in range(self.i):
