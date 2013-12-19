@@ -62,7 +62,7 @@ class IP2locHandler(xml.sax.ContentHandler):
         """Return the name of the city"""
 
         if self.city.find("Unknown") != -1:
-            print "Unknown city"
+            print("Unknown city")
             sys.exit(1)
 
         return self.city, self.country
@@ -129,20 +129,20 @@ class WeatherHandler(xml.sax.ContentHandler):
         """Print condition"""
 
         if self.city:
-            print "\nCurrent condition:"
-            print "------------------\n"
-            print "%s: %sc (humidex %sc)" % (self.city, self.temp, self.feel)
-            print "Condition: %s" % self.cond
-            print "Wind: %s" % self.wind
-            print "Relative humidity: %s" % self.humi
+            print("\nCurrent condition:")
+            print("------------------\n")
+            print("%s: %sc (humidex %sc)") % (self.city, self.temp, self.feel)
+            print("Condition: %s") % self.cond
+            print("Wind: %s") % self.wind
+            print("Relative humidity: %s") % self.humi
 
             if self.forecast is True:
-                print "\nForecast condition:"
-                print "-------------------\n"
+                print("\nForecast condition:")
+                print("-------------------\n")
                 for i in range(self.i):
-                    print "%s:\n%s\n" % (self.forecast_data[i]['day'], self.forecast_data[i]['forecast'])
+                    print("%s:\n%s\n" % (self.forecast_data[i]['day'], self.forecast_data[i]['forecast']))
         else:
-            print "No data"
+            print("No data")
             sys.exit(1)
 
 
